@@ -157,10 +157,19 @@ repo init -u https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/platform/manifest \
 | `-b android-14.0.0_r1` | Android 14 的第一个正式发布版本，稳定且文档多 |
 | `--depth=1` | **浅克隆**：只下载最新一次 commit 记录，大幅减少下载量和时间 |
 
-> **备选镜像**：如果清华镜像慢或不稳定，可以换中科大镜像：
+> **备选镜像**：如果清华镜像慢或不稳定，以下镜像站二选一：
+>
+> **中科大（USTC）：**
 > ```bash
-> repo init -u https://mirrors.ustc.edu.cn/aosp/platform/manifest -b android-14.0.0_r1 --depth=1
+> repo init -u git://mirrors.ustc.edu.cn/aosp/platform/manifest -b android-14.0.0_r1 --depth=1
 > ```
+>
+> **北京外国语大学（BFSU）—— 同步自清华，教育网更快：**
+> ```bash
+> repo init -u https://mirrors.bfsu.edu.cn/git/AOSP/platform/manifest -b android-14.0.0_r1 --depth=1
+> ```
+>
+> > **关于华为开源镜像站**：华为镜像站（mirrors.huaweicloud.com）目前**不提供 AOSP 源码镜像**，主要覆盖 Maven、PyPI、系统镜像等，不可用于 AOSP 下载。
 
 ### Step 3：只同步核心模块
 
@@ -372,15 +381,30 @@ repo init -u https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/platform/manifest -b 
 repo init -u https://mirrors.ustc.edu.cn/aosp/platform/manifest -b android-14.0.0_r1 --depth=1
 ```
 
-### Q2：repo sync 下载很慢
+### Q2：repo sync 下载很慢或频繁中断
 
 ```bash
-# 确认 REPO_URL 环境变量已设为清华镜像
+# 确认 REPO_URL 环境变量已设
 export REPO_URL='https://mirrors.tuna.tsinghua.edu.cn/git/git-repo'
 
-# 重新 init 并 sync
+# 步骤 1：换镜像重新 init
+# 清华
 repo init -u https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/platform/manifest -b android-14.0.0_r1 --depth=1
+# 或中科大
+repo init -u git://mirrors.ustc.edu.cn/aosp/platform/manifest -b android-14.0.0_r1 --depth=1
+# 或北外（教育网推荐）
+repo init -u https://mirrors.bfsu.edu.cn/git/AOSP/platform/manifest -b android-14.0.0_r1 --depth=1
+
+# 步骤 2：只同步核心模块（不要全量 sync）
 repo sync -c -j8 frameworks/base frameworks/native system/core libcore art bionic build
+```
+
+**如果网络实在不稳定**，可以考虑清华的月度 AOSP 打包包（一次性下载，支持断点续传）：
+
+```bash
+# 下载最新的 AOSP 月度打包（~100GB，完整版）
+# 但我们只需要部分目录，所以不推荐这种方式
+# 更推荐多次执行 repo sync，每次中断后重试即可
 ```
 
 ### Q3：磁盘空间不足
